@@ -20,7 +20,7 @@ async function next() {
     const data = await fetchJadeShadowsAlerts();
     const lastMission = data[data.length - 1];
     await postToWebhook(formatMission(lastMission));
-    const nextTimeout = getNextTimeout(lastMission);
+    const nextTimeout = getNextTimeout(data[1]);
     timeoutId = setTimeout(next, nextTimeout);
     console.log("Next alert in " + nextTimeout / 1000 + " seconds");
 }
