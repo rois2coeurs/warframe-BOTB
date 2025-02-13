@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "warframe-worldstate-data": "^2.21.0"
+  }
+}
