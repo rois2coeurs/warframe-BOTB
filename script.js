@@ -12,7 +12,6 @@ async function main() {
     const nextTimeout = getNextTimeout(data);
     timeoutId = setTimeout(next, nextTimeout);
     console.log("Next alert in " + nextTimeout / 1000 + " seconds");
-    console.log(getOldestActiveMission(data));
 }
 
 
