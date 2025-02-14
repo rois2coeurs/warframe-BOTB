@@ -41,12 +41,26 @@ async function fetchJadeShadowsAlerts() {
 function formatMission(mission) {
     const node = worldstateData.solNodes[mission.MissionInfo.location];
     const missionType = worldstateData.missionTypes[mission.MissionInfo.missionType];
-    return `\`${getMissionTier(mission)} Tier\` ${node.enemy} **${missionType.value}** - ${node.value} - Expire: ${msToTimespanDiscord(mission.Expiry.$date.$numberLong)}`;
+    const missionTier = getMissionTier(mission);
+    let msg = `\`${missionTier} Tier\` ${node.enemy} **${missionType.value}** - ${node.value} - Expire: ${msToTimespanDiscord(mission.Expiry.$date.$numberLong)}`;
+    const role = pingRoleForTier(missionTier);
+    if (role !== '') msg += ` ||${role}||`;
+    return msg;
 }
 
 function msToTimespanDiscord(ms) {
     return `<t:${parseInt(ms) / 1000}:R>`;
 }
+
+function pingRoleForTier(tier) {
+    const envVar = tier.toUpperCase() + '_TIER_ROLE_ID';
+    const tierRoleId = process.env[envVar];
+    if (tierRoleId === undefined) {
+        return '';
+    }
+    return `<@&${process.env[envVar]}>`;
+}
+
 
 async function postToWebhook(message) {
     const webhookUrl = process.env.WEBHOOK_URL;
