@@ -9,24 +9,25 @@ async function main() {
     for (let i = 0; i < data.length; i++) {
         await postToWebhook(formatMission(data[i]));
     }
-    const nextTimeout = getNextTimeout(data[0]);
+    const nextTimeout = getNextTimeout(data);
     timeoutId = setTimeout(next, nextTimeout);
     console.log("Next alert in " + nextTimeout / 1000 + " seconds");
+    console.log(getOldestActiveMission(data));
 }
 
 
 async function next() {
     clearTimeout(timeoutId);
     const data = await fetchJadeShadowsAlerts();
-    const lastMission = data[data.length - 1];
+    const lastMission = getLatestMission(data);
     await postToWebhook(formatMission(lastMission));
-    const nextTimeout = getNextTimeout(data[1]);
+    const nextTimeout = getNextTimeout(data);
     timeoutId = setTimeout(next, nextTimeout);
     console.log("Next alert in " + nextTimeout / 1000 + " seconds");
 }
 
-function getNextTimeout(mission) {
-    return mission.Expiry.$date.$numberLong - Date.now() + 2500;
+function getNextTimeout(data) {
+    return getOldestActiveMission(data).Expiry.$date.$numberLong - Date.now() + 2000;
 }
 
 async function fetchJadeShadowsAlerts() {
@@ -77,6 +78,17 @@ function getMissionTier(mission) {
         return 'C';
     }
     return 'Unknown';
+}
+
+function getLatestMission(data) {
+    data = data.sort((a, b) => parseInt(b.Expiry.$date.$numberLong) - parseInt(a.Expiry.$date.$numberLong) );
+    return data[0];
+}
+
+function getOldestActiveMission(data) {
+    data = data.filter((item) => parseInt(item.Expiry.$date.$numberLong) > Date.now());
+    data = data.sort((a, b) => parseInt(a.Expiry.$date.$numberLong) - parseInt(b.Expiry.$date.$numberLong) );
+    return data[0];
 }
 
 main();
